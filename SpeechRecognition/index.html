@@ -4,9 +4,31 @@
 <head>
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="js/recorder.js"></script>
+  <style type='text/css'>
+    ul { list-style: none; } audio { display: block; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  
+  <!-- STRUCTURE -->
+  
+  <button id="startRecognition">Mute (start recognition)</button>
+  <button onClick="mute();">Mute (only)</button>
+  
+  <audio id="background1" preload="auto" autoplay loop volume="0.3" src="./files/test-1.wav"></audio>
+  <audio id="background2" preload="auto" autoplay loop volume="0.3" src="./files/test-2.wav"></audio>
+  
+  <ul id="matchedSoundsList">
+    
+    <!-- Placeholder for all matched sounds -->
+    
+  </ul>
+  
+    
+  <!-- APPLICATION -->
+  
   <script type="text/javascript">
       
-
     ////////////////////////////////
     // SPEECH RECOGNITION
     // Supported only in Chrome
@@ -33,13 +55,6 @@
         // Send the result string via WebSocket to the running Processing Sketch
         //ws.send(transcript);
         console.log("Result: " + transcript);
-      
-        ////////////////////////////////
-        // PATTERN RECOGNITION
-        ////////////////////////////////
-      
-        if (transcript.search(/love/i) > 0) love = true;
-        if (transcript.search(/hate/i) > 0) hate = true;
         
         // Stop recording and trigger upload
         upload(transcript);
@@ -47,7 +62,7 @@
     
     // Controlling the whole thing
     // Start the recognition
-    recognition.start();
+    //recognition.start();
     // Start the recording when Chrome recognizes "speech"
     recognition.onspeechstart = function() { startRecording(); }
     // End the recording when the sound ends (try onsoundend too)
@@ -56,6 +71,11 @@
       console.log('Stopped recording.');
     }
     
+    $("#startRecognition").click(function(){
+      destroy();
+      mute();
+      recognition.start();
+    })
     
     
     ////////////////////////////////
@@ -95,25 +115,65 @@
           $.ajax({
             url: 'upload.php',
             type: 'POST',
-            data: { 'transcript': transcript,
-                    'love': love,
-                    'hate': hate,
-                    'data': event.target.result,
-                  },
+            data: { 'transcript': transcript, 'data': event.target.result },
             dataType: 'text'
           }).done(function(data) {
-              console.log(data);
+              //console.log(data);
+              $.each(JSON.parse(data), function(i,item){
+                create("sound" + item[i], item.file)
+                var test = item.file;
+                console.log(item[i]);
+                })
           });
         };
         reader.readAsDataURL(blob);
       });
 
       recorder.clear();
+      
+      mute();
     }
+    
+    
+    
+    
+    ////////////////////////////////
+    // AUDIO PLAYER
+    // Creates Audio Elements when a match is found
+    ////////////////////////////////
+    
+    function create(target, file) {
+      // Create Audio Element
+      var audio = document.createElement('audio');
+          audio.id = target;
+          audio.controls = true;
+          audio.volume = 1;
+          audio.autoplay = true;
+          audio.loop = true;
+          audio.src = "./files/" + file;
+          audio.load();
+          audio.play();
+      // Append Audio Element to DOM
+      var li = document.createElement('li');
+          li.appendChild(audio);
+          matchedSoundsList.appendChild(li);
+    }
+    
+    function destroy() {
+      $("#matchedSoundsList").empty();
+    }
+    
+    function mute() {
+      $("audio").each(function(){
+          var status = $(this).prop("muted");
+          $(this).prop("muted",!status);
+      });
+      var status = $("#startRecognition").prop("disabled");
+      $("#startRecognition").prop("disabled",!status);
+    }
+    
+    
   
   </script>
-  
-</head>
-<body>
 </body>
 </html>
