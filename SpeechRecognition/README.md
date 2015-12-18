@@ -14,3 +14,5 @@ Second: For each recognition you need to reload the website!
 Word patterns included:
 - "love"
 - "hate"
+
+New patterns can be added in the database. Just ad the Word to the table "patterns".
