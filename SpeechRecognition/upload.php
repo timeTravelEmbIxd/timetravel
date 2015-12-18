@@ -57,7 +57,7 @@ $result = $con->query($sql);
   if ($con->query($sql_match) === TRUE) { /*echo "\n Match registered: ".$pattern."\n"; */}
           
           // 2. Get old Matches
-          $sql = "SELECT file FROM matches JOIN records ON matches.id_record = records.id WHERE matches.id_pattern = '".mysql_real_escape_string($pattern)."'";
+          $sql = "SELECT records.file FROM matches JOIN patterns ON matches.id_pattern = patterns.id JOIN records ON matches.id_record = records.id WHERE patterns.pattern = '".$pattern."'";
           $result = $con->query($sql);
 
           // 3. Create array for Result
