@@ -14,9 +14,9 @@ Carlos
 See folder "Speech Recognition" for instructions.
 
 
-# Aurdino <-> Browser Communication
+# Arduino <-> Browser Communication
 
-See folder "Arduino" for more instructions. See the specific INO for more.
+See folder "Arduino" for more instructions.
 
 
 # Processing API
